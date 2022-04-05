@@ -13,7 +13,11 @@ released under GPL v3.0
  - Morse Push Button
  - 1602 Parallel Display with PCF8574 I2C backpack
 
-## PIN CONFIG
+## INSTALLATION
+Just upload code.py and the contents of the lib folder to your Maker Nano RP 2040
+Use current CircuitPyton Firmware!
+
+### PIN CONFIG
  - Morse pushbutton GP16
  - backlight control for display GP17
  - internal pushbutton hardwired GP20
