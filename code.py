@@ -59,8 +59,6 @@ blt = pwmio.PWMOut(board.GP17, variable_frequency=True)
 blt.frequency = 500
 blt.duty_cycle = int(0) #max 65535
 
-soundActive = False
-
 # morse tree for morse to character conversion
 mtree = Tree(None, 
              Tree("E",
@@ -103,17 +101,30 @@ def displayInit():
     display.set_display_enabled(True)
 
 def displayClear(posx=0,posy=0):
-    global display
+    global display, displayPos
+    displayPos = posx+13*posy
     display.clear()
     displaySetCursor(posx,posy)
     
 def displayPrint(c):
-    global display
-    display.print(c)
+    global display, displayPos
 
-def displaySetCursor(posx=0,posy=0):
+    if c != None:
+        displaySetCursor(int(displayPos / 13), displayPos % 13)
+        displayPos = displayPos + len(c)
+        if displayPos > 25:
+            displayClear()
+        display.print(c)
+    else:
+        display.print("?")
+
+def displayText(t):
     global display
-    display.set_cursor_pos(posx,posy)
+    display.print(t)
+
+def displaySetCursor(row=0,col=0):
+    global display
+    display.set_cursor_pos(row,col)
 
 def displayBrightness(factor):
     global displayBright
@@ -164,21 +175,14 @@ def soundStop():
 def outputDotDash(c):
     sys.stdout.write(c)
     displaySetCursor(0,15)
-    displayPrint(c)
+    displayText(c)
     
 def outputChar(c):
-    global pos
     if c != None:
         sys.stdout.write(c)
-        displaySetCursor(int(pos / 13), pos % 13)
-        pos = pos + 1
-        if pos > 25:
-            displayClear()
-            pos = 0
-        displayPrint(c)
     else:
         sys.stdout.write("?")
-        displayPrint("?")
+    displayPrint(c)
         
 def outputIllegalSequence():
     sys.stdout.write("illegal sequence\n")
@@ -203,13 +207,12 @@ tmp = mtree
 state = 1
 timer = -1
 # splash screen
-pos = 5
+displayPos = 5
 morseThat("MORSE")
 displaySetCursor(1,2)
-displayPrint("(c) 2022 PG")
+displayText("(c) 2022 PG")
 time.sleep(1)
 # clear display
-pos = 0
 displayClear()
 
 # ------------ main loop with state machine
@@ -250,29 +253,36 @@ while True:
 
     #states
     if state == 1:
-        time.sleep(0.03)
+        time.sleep(0.02)
         #off state in character
         if timer > -1 and dtimer > DASH:
                 outputChar(tmp.data)
                 tmp = mtree
                 state = 2
     elif state == 2:
-        time.sleep(0.05)
+        time.sleep(0.02)
         # off state with character pause
         if timer > -1 and dtimer > 4*DASH:
                 state = 3
                 outputSpace()
     elif state == 3:
-        time.sleep(0.1)
+        time.sleep(0.02)
         # off state and word pause
         if timer > -1 and dtimer > 10:
+                # clear display after some seconds
+                state = 4
+                displayClear()
+                displayBrightness(0)
+    elif state == 4:
+        time.sleep(0.02)
+        # off state and word pause
+        if timer > -1 and dtimer > 20:
                 # switch display off after some seconds
                 timer = -1
-                pos = 0
-                displayClear()
                 displayBrightness(0)
     else:
         #on state
         if timer > -1 and dtimer > DASH:
                 outputDotDash("-")
                 timer = -1
+                
