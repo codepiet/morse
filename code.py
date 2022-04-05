@@ -221,6 +221,10 @@ while True:
     # check button state
     button = not btn.value or pbm.value
     # state changes
+    if state == 4 and button == True:
+        # wake up
+        displayBrightness(0.7)
+        button = not btn.value or pbm.value    
     if state > 0 and button == True:
         # button is now pressed
         displayBrightness(0.7)
@@ -272,7 +276,6 @@ while True:
                 # clear display after some seconds
                 state = 4
                 displayClear()
-                displayBrightness(0)
     elif state == 4:
         time.sleep(0.02)
         # off state and word pause
@@ -285,4 +288,3 @@ while True:
         if timer > -1 and dtimer > DASH:
                 outputDotDash("-")
                 timer = -1
-                
