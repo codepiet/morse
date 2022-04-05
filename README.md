@@ -3,6 +3,8 @@
 a project built in 2022 by P. Gabriel, Erkrath, Germany
 released under GPL v3.0
 
+![Project photo](morse.jpg)
+
 ## PURPOSES
  - the user of this device could learn Morse
  - example for teaching binary tree structures in programming languages
